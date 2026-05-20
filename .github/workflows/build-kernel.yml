@@ -18,24 +18,22 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y clang-17 lld-17 llvm-17 gcc-aarch64-linux-gnu
+          # kernel build auto-derives unversioned tools from CC=clang-17
+          for tool in ar nm objcopy objdump strip readelf; do
+            sudo ln -sf /usr/bin/llvm-$tool-17 /usr/local/bin/llvm-$tool
+          done
 
       - name: Build kernel Image
         run: |
           make ARCH=arm64 \
             CC=clang-17 \
             LD=ld.lld-17 \
-            AR=llvm-ar-17 \
-            NM=llvm-nm-17 \
-            OBJCOPY=llvm-objcopy-17 \
             CROSS_COMPILE=aarch64-linux-gnu- \
             b2q_defconfig
           
           make ARCH=arm64 \
             CC=clang-17 \
             LD=ld.lld-17 \
-            AR=llvm-ar-17 \
-            NM=llvm-nm-17 \
-            OBJCOPY=llvm-objcopy-17 \
             CROSS_COMPILE=aarch64-linux-gnu- \
             Image -j$(nproc)
           
