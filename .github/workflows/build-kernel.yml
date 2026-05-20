@@ -1,0 +1,51 @@
+name: Build Kernel Image
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [test]
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: Install toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-17 lld-17 gcc-aarch64-linux-gnu
+
+      - name: Build kernel Image
+        run: |
+          make ARCH=arm64 \
+            CC=clang-17 \
+            LD=ld.lld-17 \
+            CROSS_COMPILE=aarch64-linux-gnu- \
+            b2q_defconfig
+          
+          make ARCH=arm64 \
+            CC=clang-17 \
+            LD=ld.lld-17 \
+            CROSS_COMPILE=aarch64-linux-gnu- \
+            Image -j$(nproc)
+          
+          ls -lh arch/arm64/boot/Image
+          gzip -9c arch/arm64/boot/Image > Image.gz
+
+      - name: Verify symbol
+        run: |
+          aarch64-linux-gnu-nm vmlinux | grep __stack_chk_guard || echo "NOT FOUND"
+          grep __stack_chk_guard Module.symvers || echo "NOT IN SYMVERS"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: kernel-image
+          path: |
+            Image.gz
+            Module.symvers
+          if-no-files-found: error
