@@ -15,7 +15,7 @@
  *
  */
 
-#include <zinitix_ts.h>
+#include "zinitix_ts.h"
 
 /*<= you must set key button mapping*/
 #ifdef NOT_SUPPORTED_TOUCH_DUMMY_KEY

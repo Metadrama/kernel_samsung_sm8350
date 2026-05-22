@@ -960,7 +960,7 @@ struct zt75xx_ts_info {
 #define ZT75XX_TS_DEVICE	"zt75xx_ts"
 
 #if IS_ENABLED(CONFIG_INPUT_SEC_SECURE_TOUCH)
-#include <../../../sec_input/sec_secure_touch.h>
+#include "../../../sec_input/sec_secure_touch.h"
 #endif
 
 #if IS_ENABLED(CONFIG_INPUT_TOUCHSCREEN_TCLMV2)
